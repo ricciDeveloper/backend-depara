@@ -1,0 +1,57 @@
+{
+  "name": "DE x PARA Mapper Backend",
+  "description": "Backend Node.js para sistema de automação de mapeamento DE x PARA com integração Gemini AI",
+  "repository": "https://github.com/joaoricci/dexpara-automation",
+  "logo": "https://dexpara-automation.vercel.app/logo.png",
+  "keywords": [
+    "nodejs",
+    "express",
+    "gemini-ai",
+    "excel",
+    "automation",
+    "url-mapping"
+  ],
+  "stack": "heroku-20",
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "GEMINI_API_KEY": {
+      "description": "Chave da API do Gemini AI",
+      "required": true
+    },
+    "NODE_ENV": {
+      "description": "Ambiente de execução",
+      "value": "production"
+    },
+    "PORT": {
+      "description": "Porta do servidor",
+      "value": "3000"
+    },
+    "RATE_LIMIT_WINDOW_MS": {
+      "description": "Janela de tempo para rate limiting (ms)",
+      "value": "900000"
+    },
+    "RATE_LIMIT_MAX_REQUESTS": {
+      "description": "Número máximo de requisições por janela",
+      "value": "100"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:mini",
+      "as": "DATABASE"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "echo 'Deploy concluído com sucesso!'"
+  }
+}
