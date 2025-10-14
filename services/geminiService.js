@@ -10,7 +10,7 @@ class GeminiService {
     } else {
       this.gemini = new GoogleGenerativeAI(this.apiKey);
       // Use the latest model: gemini-1.5-flash
-      this.model = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      this.model = this.gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
     }
   }
 
