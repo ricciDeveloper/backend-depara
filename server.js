@@ -20,22 +20,22 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     // Allow localhost on any port for development
     if (origin.match(/^http:\/\/localhost(:\d+)?$/)) {
       return callback(null, true);
     }
-    
+
     // Allow production domains
     const allowedOrigins = [
       'https://dexpara-automation.vercel.app',
       'https://dexpara-backend-production.up.railway.app'
     ];
-    
+
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
+
     // Environment variable override
     if (process.env.CORS_ORIGIN) {
       const envOrigins = process.env.CORS_ORIGIN.split(',');
@@ -43,7 +43,7 @@ const corsOptions = {
         return callback(null, true);
       }
     }
-    
+
     callback(null, true); // Allow all for now - tighten in production
   },
   credentials: true,
@@ -95,7 +95,7 @@ app.get('/api/gemini/test', async (req, res) => {
 // Progress tracking endpoint (Server-Sent Events)
 app.get('/api/progress/:sessionId', (req, res) => {
   const sessionId = req.params.sessionId;
-  
+
   // Set SSE headers
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -113,7 +113,7 @@ app.get('/api/progress/:sessionId', (req, res) => {
     const progress = progressStore.get(sessionId);
     if (progress) {
       res.write(`data: ${JSON.stringify(progress)}\n\n`);
-      
+
       // If processing is complete or error, close connection
       if (progress.status === 'completed' || progress.status === 'error') {
         progressStore.delete(sessionId);
@@ -121,7 +121,7 @@ app.get('/api/progress/:sessionId', (req, res) => {
         return;
       }
     }
-    
+
     // Continue checking every 500ms
     setTimeout(checkProgress, 500);
   };
@@ -137,14 +137,12 @@ app.get('/api/progress/:sessionId', (req, res) => {
 // Main processing endpoint
 app.post('/api/process', async (req, res) => {
   const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  
+
   try {
     const { fileData, weights, minScore = 0.8 } = req.body;
-    
+
     if (!fileData) {
-      return res.status(400).json({ 
-        error: 'File data is required' 
-      });
+      return res.status(400).json({ error: 'File data is required' });
     }
 
     console.log('Processing file with weights:', weights, 'minScore:', minScore);
@@ -167,34 +165,30 @@ app.post('/api/process', async (req, res) => {
     // Step 1: Parse Excel data (10%)
     updateProgress('parsing', 10, 'Analisando arquivo Excel...');
     const { deRows, rastRows } = excelService.parseExcelData(fileData);
-    
+
     if (!deRows.length || !rastRows.length) {
       updateProgress('error', 0, 'Erro: Planilhas DE ou RASTREIO estão vazias');
-      return res.status(400).json({ 
-        error: 'Invalid Excel data: DE or RASTREIO sheets are empty' 
-      });
+      return res.status(400).json({ error: 'Invalid Excel data: DE or RASTREIO sheets are empty' });
     }
 
     // Step 2: Normalize data (20%)
     updateProgress('normalizing', 20, 'Normalizando dados...');
     const de = excelService.normalizeRows(deRows);
     const rast = excelService.normalizeRows(rastRows);
-    
+
     // Step 3: Calculate similarities (40%)
     updateProgress('similarities', 40, `Calculando similaridades: ${de.length} URLs DE vs ${rast.length} URLs RASTREIO...`);
     const results = similarityService.calculateSimilarities(de, rast, weights);
-    
+
     console.log(`Processing ${results.length} DE URLs against ${rast.length} RASTREIO URLs`);
 
     // Step 4: Gemini enhancement (40% to 90%)
     updateProgress('gemini', 50, 'Aplicando inteligência artificial Gemini...');
     const enhancedResults = await geminiService.enhanceMatchesWithProgress(results, minScore, (progress) => {
       const geminiProgress = 50 + (progress * 0.4); // 50% to 90%
-      updateProgress('gemini', geminiProgress, `Gemini AI: ${progress.toFixed(0)}% concluído`, {
-        processed: progress
-      });
+      updateProgress('gemini', geminiProgress, `Gemini AI: ${progress.toFixed(0)}% concluído`, { processed: progress });
     });
-    
+
     console.log(`Enhanced ${enhancedResults.length} results with Gemini AI`);
 
     // Step 5: Generate output Excel (90% to 100%)
@@ -214,7 +208,7 @@ app.post('/api/process', async (req, res) => {
 
   } catch (error) {
     console.error('Processing error:', error);
-    
+
     // Update progress with error
     const errorProgress = {
       sessionId,
@@ -226,7 +220,7 @@ app.post('/api/process', async (req, res) => {
       status: 'error'
     };
     progressStore.set(sessionId, errorProgress);
-    
+
     res.status(500).json({ 
       error: 'Internal server error', 
       message: error.message,
@@ -239,11 +233,9 @@ app.post('/api/process', async (req, res) => {
 app.post('/api/gemini/enhance', async (req, res) => {
   try {
     const { deRow, candidates } = req.body;
-    
+
     if (!deRow || !candidates) {
-      return res.status(400).json({ 
-        error: 'DE row and candidates are required' 
-      });
+      return res.status(400).json({ error: 'DE row and candidates are required' });
     }
 
     const enhanced = await geminiService.enhanceSingleMatch(deRow, candidates);
@@ -272,11 +264,14 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' });
 });
 
-// Start server
+// ✅ Start server (only once)
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
+  if (process.env.RENDER) {
+    console.log("🌐 Running inside Render environment");
+  }
 });
 
 module.exports = app;
