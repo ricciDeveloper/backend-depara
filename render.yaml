@@ -1,18 +1,17 @@
-# render.yaml
 services:
   - type: web
     name: backend-depara
     env: node
     plan: free
-    autoDeploy: true
-
-    buildCommand: "npm install"
-    startCommand: "node server.js"
-
-    healthCheckPath: "/api/health"
-
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        value: https://dexpara-automation.vercel.app,https://backend-depara.onrender.com

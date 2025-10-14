@@ -9,8 +9,8 @@ class GeminiService {
       this.gemini = null;
     } else {
       this.gemini = new GoogleGenerativeAI(this.apiKey);
-      // Use the latest model: gemini-2.5-flash
-      this.model = this.gemini.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      // Use the latest model: gemini-1.5-flash
+      this.model = this.gemini.getGenerativeModel({ model: 'gemini-1.5-flash' });
     }
   }
 
@@ -267,7 +267,7 @@ Score deve ser entre 0.0 e 1.0, sendo:
       return { success: false, message: 'Gemini API key not configured' };
     }
 
-    const models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+    const models = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
     
     for (const modelName of models) {
       try {

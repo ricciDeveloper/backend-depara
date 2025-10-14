@@ -29,7 +29,8 @@ const corsOptions = {
     // Allow production domains
     const allowedOrigins = [
       'https://dexpara-automation.vercel.app',
-      'https://dexpara-backend-production.up.railway.app'
+      'https://dexpara-backend-production.up.railway.app',
+      'https://backend-depara.onrender.com'
     ];
 
     if (allowedOrigins.includes(origin)) {
@@ -52,7 +53,17 @@ const corsOptions = {
 };
 
 // Security middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+    },
+  },
+}));
 app.use(cors(corsOptions));
 
 // Rate limiting

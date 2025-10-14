@@ -71,17 +71,39 @@ O servidor estará disponível em `http://localhost:3000`
 
 ## 📡 Endpoints da API
 
+**Base URL:** `https://backend-depara.onrender.com`
+
 ### Health Check
 ```
 GET /api/health
 ```
-Retorna status do servidor.
+Retorna status do servidor e informações de configuração.
+
+**Exemplo de resposta:**
+```json
+{
+  "status": "OK",
+  "timestamp": "2025-10-14T22:37:46.068Z",
+  "version": "1.0.0",
+  "environment": "production",
+  "port": 10000,
+  "cors_origins": "default"
+}
+```
 
 ### Teste da API Gemini
 ```
 GET /api/gemini/test
 ```
 Testa a conectividade com a API Gemini.
+
+**Exemplo de resposta:**
+```json
+{
+  "success": true,
+  "message": "Gemini API is working with model: gemini-1.5-flash"
+}
+```
 
 ### Processar Planilha
 ```
@@ -141,15 +163,21 @@ back/
 
 ## 🚀 Deploy
 
-### Railway
-1. Conecte seu repositório ao Railway
-2. Configure as variáveis de ambiente
+### Render (Atual)
+O backend está deployado no Render em: `https://backend-depara.onrender.com`
+
+**Configuração no Render:**
+1. Conecte seu repositório ao Render
+2. Configure as variáveis de ambiente:
+   - `GEMINI_API_KEY`: Sua chave da API Gemini
+   - `NODE_ENV`: `production`
+   - `CORS_ORIGIN`: `https://dexpara-automation.vercel.app,https://backend-depara.onrender.com`
 3. Deploy automático
 
 ### Outros Serviços
 Este backend pode ser deployado em qualquer serviço que suporte Node.js:
+- Railway
 - Heroku
-- Render
 - DigitalOcean App Platform
 - AWS Lambda
 
